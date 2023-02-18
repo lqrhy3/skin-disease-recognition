@@ -1,0 +1,13 @@
+defaults:
+  - _self_
+  - paths: default.yaml
+  - hydra: default.yaml
+
+task_name: evaluate
+
+pred_ann_file: /home/lqrhy3/PycharmProjects/skin-deseases-detection-project/data/preprocessed/acne04/annotations.json
+target_ann_file: /home/lqrhy3/PycharmProjects/skin-deseases-detection-project/data/preprocessed/acne04/annotations.json
+check_correspondence: false
+
+metrics:
+  - _target_: torchmetrics.detection.mean_ap.MeanAveragePrecision

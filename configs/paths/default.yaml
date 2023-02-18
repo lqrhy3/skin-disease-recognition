@@ -1,0 +1,3 @@
+root_dir: ${oc.env:PROJECT_ROOT}
+output_dir: ${hydra:runtime.output_dir}
+
