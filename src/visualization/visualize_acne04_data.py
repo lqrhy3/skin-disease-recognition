@@ -1,10 +1,10 @@
-import json
 import os
 
 import click
 import cv2
 import numpy as np
 
+from src.utils import read_json
 from src.visualization.utils import draw_bounding_boxes
 
 
@@ -12,17 +12,16 @@ from src.visualization.utils import draw_bounding_boxes
 @click.option('--data_dir', type=str, help='Path to folder with prepared acne04 data.')
 @click.option('--resize_images', type=bool, default=True)
 def main(data_dir: str, resize_images: bool):
-    annotations_dir = os.path.join(data_dir, 'annotations')
-    ann_file_names = os.listdir(annotations_dir)
-    ann_i = 0
+    annotations = read_json(os.path.join(data_dir, 'annotations.json'))
     images_dir = os.path.join(data_dir, 'images')
+    i = 0
 
     enable_draw_bboxes = True
     print_instructions()
     cv2.startWindowThread()
     while True:
-        path_to_ann_file = os.path.join(annotations_dir, ann_file_names[ann_i])
-        image_name, bboxes = read_annotation(path_to_ann_file)
+        image_name = annotations[i]['filename']
+        bboxes = annotations[i]['bboxes']
         path_to_image = os.path.join(images_dir, image_name)
 
         image = cv2.imread(path_to_image)
@@ -30,17 +29,19 @@ def main(data_dir: str, resize_images: bool):
             image = draw_bounding_boxes(image, bboxes)
         if resize_images:
             image = resize_min_side(image, 512)
-        cv2.imshow('image', image)
+        cv2.imshow(image_name, image)
 
         pressed_key = cv2.waitKey(0) & 0xFF
         if pressed_key == ord('a'):
-            ann_i = max(0, ann_i - 1)
+            i = max(0, i - 1)
         elif pressed_key == ord('d'):
-            ann_i = min(len(ann_file_names), ann_i + 1)
+            i = min(len(annotations), i + 1)
         elif pressed_key == ord('e'):
             enable_draw_bboxes = not enable_draw_bboxes
         elif pressed_key == ord('q'):
             break
+
+        cv2.destroyWindow(image_name)
 
 
 def print_instructions():
@@ -50,9 +51,7 @@ def print_instructions():
 
 
 def read_annotation(path_to_ann_file: str):
-    with open(path_to_ann_file, 'r') as f:
-        ann_dict = json.load(f)
-
+    ann_dict = read_json(path_to_ann_file)
     return ann_dict['filename'], ann_dict['bboxes']
 
 
