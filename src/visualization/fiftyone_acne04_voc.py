@@ -1,16 +1,16 @@
+import os.path
+
 import click
 import fiftyone as fo
 
 
 @click.command()
-@click.option('--data_path', type=str, help='Path to folder with images.')
-@click.option('--labels_path', type=str, help='Path to folder with xml files.')
-@click.option('--dataset_name', type=str, help='Name for displaying dataset', default='acne04_detection')
-def main(data_path: str, labels_path: str, dataset_name: str):
+@click.option('--data_dir', type=str, help='Path to a folder with data in VOC format.')
+def main(data_dir: str):
+    dataset_name = os.path.split(data_dir)[-1]
     dataset = fo.Dataset.from_dir(
+        dataset_dir=data_dir,
         dataset_type=fo.types.VOCDetectionDataset,
-        data_path=data_path,
-        labels_path=labels_path,
         name=dataset_name
     )
 
