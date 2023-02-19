@@ -9,8 +9,9 @@ TRAIN_RATIO = 0.8
 @click.command()
 @click.option('--yolo_data_dir', type=str, help='Path to a folder with yolo data.')
 def main(yolo_data_dir: str):
-    path_to_images = os.path.join(yolo_data_dir, 'images')
+    yolo_data_dir = os.path.expanduser(yolo_data_dir)
 
+    path_to_images = os.path.join(yolo_data_dir, 'images')
     list_images = create_full_path(path_to_images, os.listdir(path_to_images))
     shuffle(list_images)
 

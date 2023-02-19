@@ -4,15 +4,21 @@ import click
 import shutil
 import xmltodict
 
+BAKED_DATA_NAME = 'acne04_yolo'
 CLASS_ID_MAP = {'fore': 0}
 
 
 @click.command()
-@click.option('--data_dir', type=str, help='Path to a folder with voc data.')
-@click.option('--yolo_dir', type=str, help='Path to save data in yolo format.')
-def main(data_dir: str, yolo_dir: str):
-    move_and_convert_annotation(data_dir, yolo_dir)
-    move_images(data_dir, yolo_dir)
+@click.option('--voc_data_dir', type=str, help='Path to a folder with voc data.')
+@click.option('--baked_data_dir', type=str, help='Path to a directory where to save prepared data'
+                                                 ' (`acne04_yolo` folder will be created there).')
+def main(voc_data_dir: str, baked_data_dir: str):
+    voc_data_dir = os.path.expanduser(voc_data_dir)
+    baked_data_dir = os.path.expanduser(baked_data_dir)
+
+    baked_data_dir = os.path.join(baked_data_dir, BAKED_DATA_NAME)
+    move_and_convert_annotation(voc_data_dir, baked_data_dir)
+    move_images(voc_data_dir, baked_data_dir)
 
 
 def move_and_convert_annotation(data_dir: str, yolo_dir: str):

@@ -13,6 +13,9 @@ BAKED_DATA_NAME = 'acne04_voc'
 @click.option('--baked_data_dir', type=str, help='Path to a directory where to save prepared data'
                                                  ' (`acne04_voc` folder will be created there).')
 def main(raw_data_dir: str, baked_data_dir: str):
+    raw_data_dir = os.path.expanduser(raw_data_dir)
+    baked_data_dir = os.path.expanduser(baked_data_dir)
+
     baked_data_dir = os.path.join(baked_data_dir, BAKED_DATA_NAME)
     unzip_archives(raw_data_dir)
     create_baked_data_folders(baked_data_dir)
