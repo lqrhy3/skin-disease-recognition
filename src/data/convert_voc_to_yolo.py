@@ -8,7 +8,7 @@ CLASS_ID_MAP = {'fore': 0}
 
 
 @click.command()
-@click.option('--data_dir', type=str, help='Path to a folder with parsed json data.')
+@click.option('--data_dir', type=str, help='Path to a folder with voc data.')
 @click.option('--yolo_dir', type=str, help='Path to save data in yolo format.')
 def main(data_dir: str, yolo_dir: str):
     move_and_convert_annotation(data_dir, yolo_dir)
