@@ -24,7 +24,7 @@ def main(raw_data_dir: str, baked_data_dir: str):
 
 
 def unzip_archives(raw_data_root: str):
-    assert 'win' not in sys.platform, 'ochen\' zhal\'.'
+    assert not sys.platform.startswith('win'), 'ochen\' zhal\'.'
 
     if not os.path.exists(os.path.join(raw_data_root, 'Classification')):
         path_to_zip = os.path.join(raw_data_root, 'Classification.tar')
