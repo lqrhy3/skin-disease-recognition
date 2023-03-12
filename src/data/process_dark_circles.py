@@ -25,7 +25,7 @@ def main(raw_data_dir: str, processed_data_dir: str):
     (processed_data_dir / DATA_NAME).mkdir(exist_ok=True)
     (processed_data_dir / LABELS_NAME).mkdir(exist_ok=True)
 
-    for filename in tqdm(os.listdir(raw_data_dir / 'dark_circles')):
+    for filename in tqdm(os.listdir(raw_data_dir / 'dark_circles'), desc='Processing data samples'):
         # processing labels
         filename = Path(filename)
         path_to_label = raw_data_dir / 'dark_circles' / filename
@@ -46,10 +46,27 @@ def main(raw_data_dir: str, processed_data_dir: str):
 
 
 def process_label(label: np.ndarray) -> np.ndarray:
+    label = binarize_label(label)
+    label = remove_noise_from_label(label)
+    return label
+
+
+def binarize_label(label: np.ndarray) -> np.ndarray:
     unique_values = np.unique(label)
     median = np.median(unique_values)
     label = (label > median) * 255.
     label = label.astype(np.uint8)
+    return label
+
+
+def remove_noise_from_label(label: np.ndarray) -> np.ndarray:
+    # morphological opening to remove noise
+    kernel = np.ones((3, 3), dtype=label.dtype)
+    label = cv2.morphologyEx(label, cv2.MORPH_OPEN, kernel)
+
+    # morphological closing to remove small holes
+    label = cv2.morphologyEx(label, cv2.MORPH_CLOSE, kernel)
+
     return label
 
 
