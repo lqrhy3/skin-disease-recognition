@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 import os
 
@@ -19,6 +20,7 @@ LABELS_NAME = 'labels'
 def main(raw_data_dir: str, processed_data_dir: str):
     raw_data_dir = Path(raw_data_dir).expanduser()
     processed_data_dir = Path(processed_data_dir).expanduser() / DATASET_NAME
+    clean_processed_dir_if_needed(processed_data_dir)
 
     # creating folders where processed data will be saved
     processed_data_dir.mkdir(parents=True, exist_ok=True)
@@ -43,6 +45,15 @@ def main(raw_data_dir: str, processed_data_dir: str):
         path_to_save_image = processed_data_dir / DATA_NAME / filename.with_suffix('.PNG')
         image = cv2.imread(path_to_raw_image.as_posix())
         cv2.imwrite(path_to_save_image.as_posix(), image)
+
+
+def clean_processed_dir_if_needed(processed_data_dir: os.PathLike):
+    if processed_data_dir.exists():
+        print(f'Remove existing dataset version? ({processed_data_dir})')
+        print('y/[n]:', end=' ')
+        ans = input()
+        if ans.lower() in ['y', 'yes']:
+            shutil.rmtree(processed_data_dir)
 
 
 def process_label(label: np.ndarray) -> np.ndarray:
