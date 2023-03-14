@@ -1,0 +1,28 @@
+_target_: src.models.unet.unet_module.UNETModule
+
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 0.005
+  weight_decay: 0.0
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  _partial_: true
+  mode: min
+  factor: 0.1
+  patience: 10
+
+net:
+  _target_: segmentation_models_pytorch.Unet
+  encoder_name: resnet34
+  encoder_depth: 5
+  encoder_weights: imagenet
+  decoder_use_batchnorm: true
+  decoder_channels: [256, 128, 64, 32, 16]
+  decoder_attention_type: null
+  in_channels: 3
+  classes: 1
+  activation: null
+  aux_params: null
+

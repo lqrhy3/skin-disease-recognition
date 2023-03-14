@@ -1,0 +1,23 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /data: dark_circles.yaml
+  - override /model: unet.yaml
+  - override /callbacks: default.yaml
+  - override /trainer: mps.yaml
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+seed: 42
+
+trainer:
+  min_epochs: 10
+  max_epochs: 10
+  gradient_clip_val: 0.5
+
+data:
+  batch_size: 2

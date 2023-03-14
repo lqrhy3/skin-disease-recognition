@@ -1,3 +1,3 @@
 root_dir: ${oc.env:PROJECT_ROOT}
 output_dir: ${hydra:runtime.output_dir}
-
+dark_circles_data_dir: ${oc.env:DATA_DIR}/dark_circles
