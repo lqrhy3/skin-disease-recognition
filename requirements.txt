@@ -103,3 +103,4 @@ wsproto==1.2.0
 xmltodict==0.13.0
 pathlib==1.0.1
 tqdm==4.64.1
+segmentation-models-pytorch==0.3.2
