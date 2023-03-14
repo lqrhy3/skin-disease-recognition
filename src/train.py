@@ -6,6 +6,8 @@ import pytorch_lightning as pl
 from omegaconf import DictConfig
 from pytorch_lightning import Callback, LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.loggers import Logger
+import torch
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
