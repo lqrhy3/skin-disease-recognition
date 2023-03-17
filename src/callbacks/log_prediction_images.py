@@ -21,16 +21,16 @@ class LogPredictionImagesCallback(pl.Callback):
         wandb_logger = trainer.logger
         assert isinstance(wandb_logger, WandbLogger)
 
-        preds = outputs['preds'][:self.num_samples].detach()  # [N, 1, H, W]
-        samples = batch[0][:self.num_samples]  # [N, 3, H, W]
-        gts = batch[1][:self.num_samples]  # [N, 1, H, W]
+        preds = outputs['preds'][:self.num_samples].detach().cpu()  # [N, 1, H, W]
+        samples = batch[0][:self.num_samples].cpu()  # [N, 3, H, W]
+        gts = batch[1][:self.num_samples].cpu()  # [N, 1, H, W]
 
         preds = (preds * 255).expand_as(samples)  # [N, 3, H, W]
         samples = torch.clamp(unnormalize_imagenet(samples) * 255, 0, 255)  # [N, 3, H, W]
         gts = (gts * 255).expand_as(samples)  # [N, 3, H, W]
 
         visualizations = torch.cat([preds, samples, gts], dim=-1)  # [N, 3, H, 3*W]
-        visualizations = visualizations.permute(0, 2, 3, 1).cpu().numpy().astype(np.uint8)  # [N, H, 3*W, 3]
+        visualizations = visualizations.permute(0, 2, 3, 1).numpy().astype(np.uint8)  # [N, H, 3*W, 3]
         visualizations = [vis for vis in visualizations]
 
         # ochen' jal', but step passing does not work
