@@ -7,10 +7,12 @@ defaults:
   - override /data: dark_circles.yaml
   - override /model: unet.yaml
   - override /callbacks: default.yaml
-  - override /trainer: default.yaml
+  - override /trainer: cpu.yaml
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
+callbacks:
+  rich_progress_bar: null
 
 seed: 42
 
@@ -18,6 +20,12 @@ trainer:
   min_epochs: 10
   max_epochs: 10
   gradient_clip_val: 0.5
+  limit_train_batches: 2
+  limit_val_batches: 2
+
+logger:
+  offline: true
 
 data:
   batch_size: 2
+

@@ -1,8 +1,8 @@
 defaults:
   - model_checkpoint.yaml
-#  - early_stopping.yaml
   - model_summary.yaml
   - rich_progress_bar.yaml
+  - log_prediction_images
   - _self_
 
 model_checkpoint:
@@ -12,11 +12,6 @@ model_checkpoint:
   mode: "max"
   save_last: True
   auto_insert_metric_name: False
-#
-#early_stopping:
-#  monitor: "val/acc"
-#  patience: 100
-#  mode: "max"
 
 model_summary:
   max_depth: -1
