@@ -3,6 +3,7 @@ defaults:
   - model_summary.yaml
   - rich_progress_bar.yaml
   - log_prediction_images
+  - learning_rate_monitor
   - _self_
 
 model_checkpoint:

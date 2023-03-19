@@ -1,0 +1,22 @@
+_target_: src.models.unet.unet_module.UNETModule
+
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 3e-4
+  weight_decay: 0.0
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  _partial_: true
+  mode: min
+  factor: 0.1
+  patience: 10
+
+net:
+  _target_: segmentation_models_pytorch.Unet
+  encoder_name: efficientnet-b5
+  encoder_weights: imagenet
+  in_channels: 3
+  classes: 1
+  activation: null
