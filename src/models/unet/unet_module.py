@@ -1,6 +1,7 @@
 from typing import Any, List, Tuple
 
 import torch
+from monai.inferers import sliding_window_inference
 from pytorch_lightning import LightningModule
 from torchmetrics import MaxMetric, MeanMetric
 from monai.losses import DiceCELoss
@@ -112,6 +113,21 @@ class UNETModule(LightningModule):
         # log `val_acc_best` as a value through `.compute()` method, instead of as a metric object
         # otherwise metric would be reset by lightning after each epoch
         self.log("val/metric_best", self.val_metric_best.compute(), prog_bar=True)
+
+    def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> Any:
+        x, y = batch
+        assert x.shape[0] == 1  # sliding inference supporting only batch_size = 1
+        preds = sliding_window_inference(
+            inputs=x,
+            roi_size=self.trainer.datamodule.hparams.image_size,
+            sw_batch_size=1,
+            predictor=self,
+            sw_device=self.device,
+            device=self.device,
+        )
+        preds = self.preds_transforms(preds)
+
+        return preds
 
     def configure_optimizers(self):
         """Choose what optimizers and learning-rate schedulers to use in your optimization.

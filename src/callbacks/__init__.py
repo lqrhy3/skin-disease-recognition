@@ -1,1 +1,2 @@
-from .log_prediction_images import LogPredictionImagesCallback
+from src.callbacks.write_unet_preds import SegmentationWriter
+from src.callbacks.log_prediction_images import LogPredictionImagesCallback

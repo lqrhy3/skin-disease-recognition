@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from monai.data import ImageDataset
+from monai.data import ImageDataset, DataLoader
 from monai.transforms import (
     Compose,
     RandFlip,
@@ -20,12 +20,97 @@ from monai.transforms import (
     NormalizeIntensity,
     ScaleIntensityRange,
     Transpose,
-    OneOf
+    OneOf,
+    RandZoom
 )
 from pytorch_lightning import LightningDataModule
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import Dataset, random_split
 
 from src.utils.data import IMAGENET_MEAN, IMAGENET_STD
+
+
+def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Compose]:
+    transform = Compose([
+        Transpose((2, 1, 0)),
+        ScaleIntensityRange(0, 255, 0., 1.),
+        NormalizeIntensity(subtrahend=IMAGENET_MEAN, divisor=IMAGENET_STD, channel_wise=True),
+
+        RandFlip(prob=0.5, spatial_axis=1),
+        RandAffine(
+            prob=1.0,
+            translate_range=(100, 100),
+            padding_mode='zeros'
+        ),
+        OneOf(
+            transforms=[
+                RandAffine(prob=1., scale_range=(0.2, 0.2)),
+                RandZoom(prob=1., min_zoom=0.8, max_zoom=1.2, padding_mode='constant')
+            ],
+            weights=(0.2, 0.8)
+        ),
+        RandAffine(
+            prob=0.25,
+            rotate_range=np.pi / 18,
+            shear_range=(0.05, 0.05),
+            padding_mode='zeros'
+        ),
+
+        SpatialPad(spatial_size=image_size),
+        RandSpatialCrop(image_size, random_size=False),
+
+        RandGaussianNoise(prob=0.1, std=0.05),
+        RandGaussianSmooth(prob=0.25, sigma_x=(0.5, 2.5), sigma_y=(0.5, 2.5)),
+        RandAdjustContrast(prob=0.9, gamma=(0.8, 1.25)),
+    ])
+
+    seg_transform = Compose([
+        Transpose((2, 1, 0)),
+        Lambda(lambda x: x[0:1]),
+        ScaleIntensityRange(0, 255, 0., 1.),
+
+        RandFlip(prob=0.5, spatial_axis=1),
+        RandAffine(
+            prob=1.0,
+            translate_range=(100, 100),
+            padding_mode='zeros'
+        ),
+        OneOf(
+            transforms=[
+                RandAffine(prob=1., scale_range=(0.2, 0.2)),
+                RandZoom(prob=1., min_zoom=0.8, max_zoom=1.2, padding_mode='constant')
+            ],
+            weights=(0.2, 0.8)
+        ),
+        RandAffine(
+            prob=0.25,
+            rotate_range=np.pi / 18,
+            shear_range=(0.05, 0.05),
+            padding_mode='zeros'
+        ),
+
+        SpatialPad(spatial_size=image_size),
+        RandSpatialCrop(image_size, random_size=False),
+    ])
+
+    return transform, seg_transform
+
+
+def get_predict_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Compose]:
+    transform = Compose([
+        Transpose((2, 1, 0)),
+        ScaleIntensityRange(0, 255, 0., 1.),
+        NormalizeIntensity(subtrahend=IMAGENET_MEAN, divisor=IMAGENET_STD, channel_wise=True),
+        SpatialPad(spatial_size=image_size),
+    ])
+
+    seg_transform = Compose([
+        Transpose((2, 1, 0)),
+        Lambda(lambda x: x[0:1]),
+        ScaleIntensityRange(0, 255, 0., 1.),
+        SpatialPad(spatial_size=image_size),
+    ])
+
+    return transform, seg_transform
 
 
 class DarkCirclesDataModule(LightningDataModule):
@@ -36,82 +121,50 @@ class DarkCirclesDataModule(LightningDataModule):
         train_split: float,
         batch_size: int,
         num_workers: int = 0,
-        pin_memory: bool = False
+        predict_data_dir: Optional[str] = None,
+        pin_memory: bool = False,
     ):
         super().__init__()
 
         self.save_hyperparameters(logger=False)
 
-        self.transform = Compose([
-            Transpose((2, 1, 0)),
-            ScaleIntensityRange(0, 255, 0., 1.),
-            NormalizeIntensity(subtrahend=IMAGENET_MEAN, divisor=IMAGENET_STD, channel_wise=True),
-
-            RandFlip(prob=0.5, spatial_axis=1),
-            RandAffine(
-                prob=1.0,
-                translate_range=(100, 100),
-                scale_range=(0.25, 0.25),
-                padding_mode='zeros'
-            ),
-            RandAffine(
-                prob=0.5,
-                rotate_range=np.pi / 12,
-                shear_range=(0.1, 0.1),
-                padding_mode='zeros'
-            ),
-
-            SpatialPad(spatial_size=image_size),
-            RandSpatialCrop(image_size, random_size=False),
-
-            RandGaussianNoise(prob=0.1, std=0.05),
-            OneOf(
-                transforms=[
-                    RandGaussianSharpen(prob=0.75),
-                    RandGaussianSmooth(prob=0.75, sigma_x=(0.5, 2.5), sigma_y=(0.5, 2.5)),
-                ],
-                weights=(0.3, 0.7)
-            ),
-            RandAdjustContrast(prob=0.9, gamma=(0.8, 1.25)),
-        ])
-
-        self.seg_transform = Compose([
-            Transpose((2, 1, 0)),
-            Lambda(lambda x: x[0:1]),
-            ScaleIntensityRange(0, 255, 0., 1.),
-
-            RandFlip(prob=0.5, spatial_axis=1),
-            RandAffine(
-                prob=1.0,
-                translate_range=(100, 100),
-                scale_range=(0.25, 0.25),
-                padding_mode='zeros',
-                mode='nearest'
-            ),
-            RandAffine(
-                prob=0.5,
-                rotate_range=np.pi / 12,
-                shear_range=(0.1, 0.1),
-                padding_mode='zeros',
-                mode='nearest'
-            ),
-            SpatialPad(spatial_size=image_size),
-            RandSpatialCrop(image_size, random_size=False),
-        ])
-
+        self.transforms: Optional[Compose] = None
+        self.seg_transforms: Optional[Compose] = None
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
 
+        self.predict_transforms: Optional[Compose] = None
+        self.predict_seg_transforms: Optional[Compose] = None
+        self.data_predict: Optional[Dataset] = None
+
     def setup(self, stage: Optional[str] = None):
+        if stage == 'predict':
+            self.predict_transforms, self.predict_seg_transforms = get_predict_transforms(self.hparams.image_size)
+
+            image_files = glob.glob(os.path.join(self.hparams.predict_data_dir, 'data', '*'))
+            seg_files = glob.glob(os.path.join(self.hparams.predict_data_dir, 'labels', '*'))
+
+            self.data_predict = ImageDataset(
+                image_files=image_files,
+                seg_files=seg_files,
+                transform=self.predict_transforms,
+                seg_transform=self.predict_seg_transforms
+            )
+
+            return
+
         if not self.data_train and not self.data_val:
+            if not self.transforms and not self.seg_transforms:
+                self.transforms, self.seg_transforms = get_fit_transforms(self.hparams.image_size)
+
             image_files = glob.glob(os.path.join(self.hparams.data_dir, 'data', '*'))
             seg_files = glob.glob(os.path.join(self.hparams.data_dir, 'labels', '*'))
 
             dataset = ImageDataset(
                 image_files=image_files,
                 seg_files=seg_files,
-                transform=self.transform,
-                seg_transform=self.seg_transform
+                transform=self.transforms,
+                seg_transform=self.seg_transforms
             )
             trainset_size = int(len(dataset) * self.hparams.train_split)
             valset_size = len(dataset) - trainset_size
@@ -135,6 +188,15 @@ class DarkCirclesDataModule(LightningDataModule):
         return DataLoader(
             dataset=self.data_val,
             batch_size=self.hparams.batch_size,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=False,
+        )
+
+    def predict_dataloader(self):
+        return DataLoader(
+            dataset=self.data_predict,
+            batch_size=1,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,

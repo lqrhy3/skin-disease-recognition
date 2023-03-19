@@ -5,3 +5,4 @@ image_size: [256, 256]
 train_split: 0.9
 num_workers: 0
 pin_memory: False
+predict_data_dir: ${paths.dark_circles_test_data_dir}
