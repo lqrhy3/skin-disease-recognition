@@ -1,7 +1,9 @@
-import numpy as np
+from typing import Any, Optional
+
 import torch
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.utilities.types import STEP_OUTPUT
 from monai.visualize import blend_images
 
 from src.utils.data import unnormalize_imagenet
@@ -12,10 +14,30 @@ class LogPredictionImagesCallback(pl.Callback):
         super().__init__()
         self.num_samples = num_samples
 
+    def on_train_batch_end(
+        self,
+        trainer: "pl.Trainer",
+            pl_module: "pl.LightningModule",
+            outputs: STEP_OUTPUT,
+            batch: Any,
+            batch_idx: int
+    ) -> None:
+        # `outputs` come from `LightningModule.train_step`
+        self._on_trainval_batch_end('train', trainer, outputs, batch, batch_idx)
+
     def on_validation_batch_end(
-            self, trainer, pl_module, outputs, batch, batch_idx, dataloader_idx
-    ):
+        self,
+        trainer: "pl.Trainer",
+        pl_module: "pl.LightningModule",
+        outputs: Optional[STEP_OUTPUT],
+        batch: Any,
+        batch_idx: int,
+        dataloader_idx: int,
+    ) -> None:
         # `outputs` come from `LightningModule.validation_step`
+        self._on_trainval_batch_end('val', trainer, outputs, batch, batch_idx)
+
+    def _on_trainval_batch_end(self, stage: str, trainer, outputs, batch, batch_idx):
         if batch_idx != 0 or trainer.sanity_checking:
             return
 
@@ -45,9 +67,9 @@ class LogPredictionImagesCallback(pl.Callback):
             )
 
         # ochen' jal', but step passing does not work
-        wandb_logger.log_image(key='prediction_images/masks', images=raw_masks_vis)
+        wandb_logger.log_image(key=f'prediction_images/{stage}/masks', images=raw_masks_vis)
         wandb_logger.log_image(
-            key='prediction_images/blend_masks',
+            key=f'prediction_images/{stage}/blend_masks',
             images=blend_masks_vis,
             caption=['prediction vs ground_truth'] * len(blend_masks_vis)
         )
