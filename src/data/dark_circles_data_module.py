@@ -39,7 +39,7 @@ def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Com
         RandAffine(
             prob=1.0,
             translate_range=(100, 100),
-            padding_mode='zeros'
+            padding_mode='zeros',
         ),
         OneOf(
             transforms=[
@@ -72,12 +72,13 @@ def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Com
         RandAffine(
             prob=1.0,
             translate_range=(100, 100),
-            padding_mode='zeros'
+            padding_mode='zeros',
+            mode='nearest'
         ),
         OneOf(
             transforms=[
-                RandAffine(prob=1., scale_range=(0.2, 0.2)),
-                RandZoom(prob=1., min_zoom=0.8, max_zoom=1.2, padding_mode='constant')
+                RandAffine(prob=1., scale_range=(0.2, 0.2), mode='nearest'),
+                RandZoom(prob=1., min_zoom=0.8, max_zoom=1.2, padding_mode='constant', mode='nearest')
             ],
             weights=(0.2, 0.8)
         ),
@@ -85,7 +86,8 @@ def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Com
             prob=0.25,
             rotate_range=np.pi / 18,
             shear_range=(0.05, 0.05),
-            padding_mode='zeros'
+            padding_mode='zeros',
+            mode='nearest'
         ),
 
         SpatialPad(spatial_size=image_size),
@@ -211,8 +213,8 @@ if __name__ == '__main__':
         batch_size=2
     )
     dm.setup()
-    for i in range(10):
-    # for i in [0] * 5:
+    # for i in range(10):
+    for i in [0] * 5:
         image, label = dm.data_train[i]
         image = image.numpy()
         label = label.numpy()
@@ -221,9 +223,11 @@ if __name__ == '__main__':
         image = np.clip(image, 0, 1).transpose((1, 2, 0))
         label = label.transpose((1, 2, 0))
 
+        print(np.unique(label))
+
         plt.subplot(1, 2, 1)
         plt.imshow(image)
         plt.subplot(1, 2, 2)
-        plt.imshow(label)
+        plt.matshow(label)
         plt.title(i)
         plt.show()
