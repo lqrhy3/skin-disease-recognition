@@ -23,5 +23,6 @@ optimizer:
   lr: 0.001
 
 data:
-  batch_size: 128
+  batch_size: 32
   num_workers: 6
+  image_size: [512, 512]
