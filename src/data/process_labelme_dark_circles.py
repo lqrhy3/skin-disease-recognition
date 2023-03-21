@@ -35,17 +35,18 @@ def main(raw_data_dir: str, processed_data_dir: str):
 
         # processing labels
         filename = Path(filename)
-        if 'npy' not in str(filename):
+        if 'npy' not in str(filename) or '(' in str(filename):
             continue
 
         path_to_label = raw_data_dir / filename
         label = np.load(path_to_label.as_posix())
+        filename_without_npy = Path(str(filename).replace('.npy', ''))
+        processed_label, _ = process_label(label)
 
-        path_to_save_label = processed_data_dir / LABELS_NAME / filename.with_suffix('.PNG')
-        cv2.imwrite(path_to_save_label.as_posix(), label)
+        path_to_save_label = processed_data_dir / LABELS_NAME / filename_without_npy.with_suffix('.PNG')
+        cv2.imwrite(path_to_save_label.as_posix(), processed_label)
 
         # processing images
-        filename_without_npy = Path(str(filename).replace('.npy', ''))
         path_to_raw_image = raw_data_dir / '..' / 'dataset' / filename_without_npy
         path_to_save_image = processed_data_dir / DATA_NAME / filename_without_npy.with_suffix('.PNG')
         image = cv2.imread(path_to_raw_image.as_posix())
