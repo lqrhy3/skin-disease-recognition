@@ -67,9 +67,9 @@ class LogPredictionImagesCallback(pl.Callback):
         wandb_logger = trainer.logger
         assert isinstance(wandb_logger, WandbLogger)
 
-        masks_pred = outputs['preds'][:self.num_samples].detach()  # [N, 1, H, W]
-        images = batch[0][:self.num_samples]  # [N, 3, H, W]
-        masks_gt = batch[1][:self.num_samples]  # [N, 1, H, W]
+        masks_pred = outputs['preds'][:self.num_samples].detach().cpu()  # [N, 1, H, W]
+        images = batch[0][:self.num_samples].cpu()  # [N, 3, H, W]
+        masks_gt = batch[1][:self.num_samples].cpu()  # [N, 1, H, W]
 
         images = unnormalize_imagenet(images)
 
