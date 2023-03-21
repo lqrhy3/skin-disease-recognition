@@ -106,3 +106,4 @@ tqdm==4.64.1
 segmentation-models-pytorch==0.3.2
 pytorch-lightning==1.8.6
 rich==13.3.2
+wandb==0.13.10
