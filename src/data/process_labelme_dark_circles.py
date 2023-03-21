@@ -43,6 +43,8 @@ def main(raw_data_dir: str, processed_data_dir: str):
         filename_without_npy = Path(str(filename).replace('.npy', ''))
         processed_label, _ = process_label(label)
 
+        processed_label = cv2.cvtColor(processed_label, cv2.COLOR_GRAY2RGB)
+
         path_to_save_label = processed_data_dir / LABELS_NAME / filename_without_npy.with_suffix('.PNG')
         cv2.imwrite(path_to_save_label.as_posix(), processed_label)
 
