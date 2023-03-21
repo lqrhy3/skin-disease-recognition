@@ -16,6 +16,28 @@ class LogPredictionImagesCallback(pl.Callback):
         super().__init__()
         self.num_samples = num_samples
 
+    def on_train_batch_end(
+        self,
+            trainer: "pl.Trainer",
+            pl_module: "pl.LightningModule",
+            outputs: STEP_OUTPUT,
+            batch: Any,
+            batch_idx: int
+    ) -> None:
+        # `outputs` come from `LightningModule.train_step`
+        if trainer.limit_train_batches != 1.0:
+            if isinstance(trainer.limit_train_batches, int):
+                dataloader_size = trainer.limit_train_batches
+            elif isinstance(trainer.limit_train_batches, float):
+                dataloader_size = int(trainer.limit_train_batches * len(trainer.train_dataloader))
+            else:
+                raise RuntimeError
+        else:
+            dataloader_size = len(trainer.train_dataloader)
+        pre_last_batch_idx = dataloader_size - 2 if dataloader_size > 1 else 0
+        if batch_idx == pre_last_batch_idx:
+            self._on_trainval_batch_end('train', trainer, outputs, batch, batch_idx)
+
     def on_validation_batch_end(
         self,
         trainer: "pl.Trainer",
@@ -26,9 +48,22 @@ class LogPredictionImagesCallback(pl.Callback):
         dataloader_idx: int,
     ) -> None:
         # `outputs` come from `LightningModule.validation_step`
-        if batch_idx != 0 or trainer.sanity_checking:
-            return
+        if trainer.limit_val_batches != 1.0:
+            if isinstance(trainer.limit_val_batches, int):
+                dataloader_size = trainer.limit_val_batches
+            elif isinstance(trainer.limit_val_batches, float):
+                dataloader_size = int(trainer.limit_val_batches * len(trainer.val_dataloaders[dataloader_idx]))
+            else:
+                raise RuntimeError
+        else:
+            dataloader_size = len(trainer.val_dataloaders[dataloader_idx])
+        pre_last_batch_idx = dataloader_size - 2 if dataloader_size > 1 else 0
+        if batch_idx == pre_last_batch_idx:
+            self._on_trainval_batch_end('val', trainer, outputs, batch, batch_idx)
 
+    def _on_trainval_batch_end(self, stage, trainer, outputs, batch, batch_idx):
+        if trainer.sanity_checking:
+            return
         wandb_logger = trainer.logger
         assert isinstance(wandb_logger, WandbLogger)
 
@@ -58,8 +93,9 @@ class LogPredictionImagesCallback(pl.Callback):
 
         wandb_logger.experiment.log(
             {
-                f'prediction_images/val/masks': raw_masks_vis,
-                f'prediction_images/val/blend_masks': blend_masks_vis
+                f'prediction_images/{stage}/masks': raw_masks_vis,
+                f'prediction_images/{stage}/blend_masks': blend_masks_vis
             },
-            step=trainer.global_step
+            # step=trainer.global_step
+            commit=False
         )

@@ -5,28 +5,29 @@
 
 defaults:
   - override /data: dark_circles.yaml
-  - override /model: unet.yaml
+  - override /model: unet_en_b5.yaml
   - override /callbacks: default.yaml
-  - override /trainer: cpu.yaml
+  - override /trainer: gpu.yaml
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
-callbacks:
-  rich_progress_bar: null
 
 seed: 42
 
 trainer:
   min_epochs: 10
-  max_epochs: 10
-#  gradient_clip_val: 0.5
-  limit_train_batches: 2
-  limit_val_batches: 2
-  enable_progress_bar: true
+  max_epochs: 100
 
-logger:
-  offline: true
+model.optimizer:
+  lr: 3e-4
+
+model.scheduler:
+  _target_: torch.optim.lr_scheduler.MultiStepLR
+  _partial_: true
+  milestones: [80, 90]
+  gamma: 0.1
 
 data:
-  batch_size: 2
-
+  batch_size: 8
+  num_workers: 4
+  image_size: [512, 512]
