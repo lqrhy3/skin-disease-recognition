@@ -20,8 +20,10 @@ def load_dataset(data_dir: Path) -> fo.Dataset:
 def add_predicted_masks(dataset: fo.Dataset, preds_dir: Path) -> fo.Dataset:
     for sample in dataset:
         path_to_predicted_mask = preds_dir / sample.filename
-        sample['prediction'] = fo.Segmentation(mask_path=path_to_predicted_mask.as_posix())
-        sample.save()
+
+        if path_to_predicted_mask.exists():
+            sample['prediction'] = fo.Segmentation(mask_path=path_to_predicted_mask.as_posix())
+            sample.save()
 
     return dataset
 

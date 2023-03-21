@@ -33,7 +33,6 @@ def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Com
     transform = Compose([
         Transpose((2, 1, 0)),
         ScaleIntensityRange(0, 255, 0., 1.),
-        NormalizeIntensity(subtrahend=IMAGENET_MEAN, divisor=IMAGENET_STD, channel_wise=True),
 
         RandFlip(prob=0.5, spatial_axis=1),
         RandAffine(
@@ -43,7 +42,7 @@ def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Com
         ),
         OneOf(
             transforms=[
-                RandAffine(prob=1., scale_range=(0.2, 0.2)),
+                RandAffine(prob=1., scale_range=(0.2, 0.2), padding_mode='zeros'),
                 RandZoom(prob=1., min_zoom=0.8, max_zoom=1.2, padding_mode='constant')
             ],
             weights=(0.2, 0.8)
@@ -55,12 +54,13 @@ def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Com
             padding_mode='zeros'
         ),
 
-        SpatialPad(spatial_size=image_size),
+        SpatialPad(spatial_size=image_size, mode='constant'),
         RandSpatialCrop(image_size, random_size=False),
 
         RandGaussianNoise(prob=0.1, std=0.05),
         RandGaussianSmooth(prob=0.25, sigma_x=(0.5, 2.5), sigma_y=(0.5, 2.5)),
         RandAdjustContrast(prob=0.9, gamma=(0.8, 1.25)),
+        NormalizeIntensity(subtrahend=IMAGENET_MEAN, divisor=IMAGENET_STD, channel_wise=True),
     ])
 
     seg_transform = Compose([
@@ -77,7 +77,7 @@ def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Com
         ),
         OneOf(
             transforms=[
-                RandAffine(prob=1., scale_range=(0.2, 0.2), mode='nearest'),
+                RandAffine(prob=1., scale_range=(0.2, 0.2), mode='nearest', padding_mode='zeros'),
                 RandZoom(prob=1., min_zoom=0.8, max_zoom=1.2, padding_mode='constant', mode='nearest')
             ],
             weights=(0.2, 0.8)
@@ -90,7 +90,7 @@ def get_fit_transforms(image_size: Tuple[int, int] or int) -> Tuple[Compose, Com
             mode='nearest'
         ),
 
-        SpatialPad(spatial_size=image_size),
+        SpatialPad(spatial_size=image_size, mode='constant'),
         RandSpatialCrop(image_size, random_size=False),
     ])
 
@@ -226,8 +226,8 @@ if __name__ == '__main__':
         print(np.unique(label))
 
         plt.subplot(1, 2, 1)
-        plt.imshow(image)
+        plt.imshow(image, vmin=0, vmax=1)
         plt.subplot(1, 2, 2)
-        plt.matshow(label)
+        plt.imshow(label)
         plt.title(i)
         plt.show()
