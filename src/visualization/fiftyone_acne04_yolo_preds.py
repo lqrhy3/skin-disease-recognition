@@ -102,7 +102,7 @@ def main(weights: str, source: str, device: str, img_size: int, conf_thres, iou_
 
         detections = process_predictions(pred, img, raw_image, conf_thres, iou_thres)
 
-        sample[model.yaml_file] = fo.Detections(detections=detections)
+        sample[model.yaml_file.split('.')[0]] = fo.Detections(detections=detections)
         sample.save()
 
     session = fo.launch_app(dataset, remote=True)
