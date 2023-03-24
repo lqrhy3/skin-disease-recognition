@@ -30,6 +30,8 @@ class LandmarksDlibPredictor:
         :poram image: RGB
         """
         faces = self.detector(image, 0)
+        if len(faces) < 1:
+            return None
         face = faces[0]
         bbox = dlib.rectangle(int(face.left()), int(face.top()), int(face.right()), int(face.bottom()))
         landmarks = self.predictor(image, bbox)

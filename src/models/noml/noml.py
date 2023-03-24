@@ -65,6 +65,9 @@ class NoMLClassifier:
 
     def __call__(self, image: np.ndarray):
         face_landmarks = self.landmarks_predictor(image)
+        if face_landmarks is None:
+            return None
+
         rule_mask, rure_mask, rarule_mask, rarure_mask = self.calculate_region_masks(image, face_landmarks)
         rule_intensity = self.calculate_intensity_by_mask(image, rule_mask)
         rure_intensity = self.calculate_intensity_by_mask(image, rure_mask)
@@ -75,7 +78,7 @@ class NoMLClassifier:
         left_measure = rarule_intensity - rule_intensity
         right_measure = rarure_intensity - rure_intensity
         mean_measure = 0.5 * (left_measure + right_measure)
-        predicted_label = mean_measure > self.thr
+        # predicted_label = mean_measure > self.thr
 
         # print(f'{left_measure=},\n '
         #       f'{right_measure=},\n '
@@ -85,7 +88,7 @@ class NoMLClassifier:
         #       f'{rarure_intensity=}\n'
         #       f'========================')
 
-        return predicted_label, mask
+        return mean_measure
 
     def calculate_intensity_by_mask(self, image: np.ndarray, mask: np.ndarray) -> float:
         roi = image * mask[:, :, None]
