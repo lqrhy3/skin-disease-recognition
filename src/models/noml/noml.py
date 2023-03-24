@@ -68,7 +68,8 @@ class NoMLClassifier:
         if face_landmarks is None:
             return None
 
-        rule_mask, rure_mask, rarule_mask, rarure_mask = self.calculate_region_masks(image, face_landmarks)
+        eye_height = self.calculate_mean_eye_height(face_landmarks)
+        rule_mask, rure_mask, rarule_mask, rarure_mask = self.calculate_region_masks(image, face_landmarks, eye_height)
         rule_intensity = self.calculate_intensity_by_mask(image, rule_mask)
         rure_intensity = self.calculate_intensity_by_mask(image, rure_mask)
         rarule_intensity = self.calculate_intensity_by_mask(image, rarule_mask)
@@ -90,14 +91,28 @@ class NoMLClassifier:
 
         return mean_measure
 
+    def calculate_mean_eye_height(self, landmarks) -> float:
+        landmark_list = landmarks.parts()
+
+        left_top_point = ((landmark_list[37].x + landmark_list[38].x) / 2, (landmark_list[37].y + landmark_list[38].y) / 2)
+        left_bot_point = ((landmark_list[41].x + landmark_list[40].x) / 2, (landmark_list[41].y + landmark_list[40].y) / 2)
+        right_top_point = ((landmark_list[43].x + landmark_list[44].x) / 2, (landmark_list[43].y + landmark_list[44].y) / 2)
+        right_bot_point = ((landmark_list[47].x + landmark_list[46].x) / 2, (landmark_list[47].y + landmark_list[46].y) / 2)
+
+        left_height = math.dist(left_top_point, left_bot_point)
+        right_height = math.dist(right_top_point, right_bot_point)
+
+        mean_height = (left_height + right_height) / 2
+        return mean_height
+
     def calculate_intensity_by_mask(self, image: np.ndarray, mask: np.ndarray) -> float:
         roi = image * mask[:, :, None]
         return roi[roi.nonzero()].mean()
 
-    def calculate_region_masks(self, image: np.ndarray, face_landmarks):
+    def calculate_region_masks(self, image: np.ndarray, face_landmarks, eye_height: float):
         left_eye_circle_mask, right_eye_circle_mask, left_eye_circle, right_eye_circle = \
             self.create_circles_mask(image, face_landmarks)
-        left_pillar_mask, right_pillar_mask = self.create_eyes_pillar_masks(image, face_landmarks)
+        left_pillar_mask, right_pillar_mask = self.create_eyes_pillar_masks(image, face_landmarks, eye_height)
 
         rule_mask = np.logical_and(left_eye_circle_mask, np.logical_not(left_pillar_mask))
         rure_mask = np.logical_and(right_eye_circle_mask, np.logical_not(right_pillar_mask))
@@ -140,7 +155,7 @@ class NoMLClassifier:
         rarure_mask = np.logical_and(rarure_mask, right_triangle_mask)
         return rarule_mask, rarure_mask
 
-    def create_eyes_pillar_masks(self, image: np.ndarray, face_landmarks) -> Tuple[np.ndarray, np.ndarray]:
+    def create_eyes_pillar_masks(self, image: np.ndarray, face_landmarks, eye_height: float) -> Tuple[np.ndarray, np.ndarray]:
         left_pillar_mask = np.zeros((image.shape[0], image.shape[1]))
         right_pillar_mask = np.zeros((image.shape[0], image.shape[1]))
 
@@ -154,9 +169,8 @@ class NoMLClassifier:
         right_pillar_pts = np.array(right_pillar_pts)
         cv2.fillPoly(right_pillar_mask, [right_pillar_pts], color=(255, ))
 
-        # TODO: make it relative to eye size
-        kernel = np.ones((7, 7))
-        iterations = 2
+        kernel = np.ones((3, 3))
+        iterations = max(int(0.15 * eye_height), 1)
         left_pillar_mask = cv2.dilate(left_pillar_mask, kernel, iterations=iterations)
         right_pillar_mask = cv2.dilate(right_pillar_mask, kernel, iterations=iterations)
 
