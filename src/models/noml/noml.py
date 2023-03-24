@@ -59,14 +59,13 @@ def find_circle(x1, y1, x2, y2, x3, y3):
 
 
 class NoMLClassifier:
-    def __init__(self, landmarks_predictor_path: str, thr: float):
+    def __init__(self, landmarks_predictor_path: str):
         self.landmarks_predictor = LandmarksDlibPredictor(landmarks_predictor_path)
-        self.thr = thr
 
     def __call__(self, image: np.ndarray):
         face_landmarks = self.landmarks_predictor(image)
         if face_landmarks is None:
-            return None
+            return None, None
 
         eye_height = self.calculate_mean_eye_height(face_landmarks)
         rule_mask, rure_mask, rarule_mask, rarure_mask = self.calculate_region_masks(image, face_landmarks, eye_height)
@@ -89,7 +88,7 @@ class NoMLClassifier:
         #       f'{rarure_intensity=}\n'
         #       f'========================')
 
-        return mean_measure
+        return mean_measure, mask
 
     def calculate_mean_eye_height(self, landmarks) -> float:
         landmark_list = landmarks.parts()
@@ -169,8 +168,8 @@ class NoMLClassifier:
         right_pillar_pts = np.array(right_pillar_pts)
         cv2.fillPoly(right_pillar_mask, [right_pillar_pts], color=(255, ))
 
-        kernel = np.ones((3, 3))
-        iterations = max(int(0.15 * eye_height), 1)
+        kernel = np.ones((2, 2))
+        iterations = max(int(0.2 * eye_height), 1)
         left_pillar_mask = cv2.dilate(left_pillar_mask, kernel, iterations=iterations)
         right_pillar_mask = cv2.dilate(right_pillar_mask, kernel, iterations=iterations)
 
