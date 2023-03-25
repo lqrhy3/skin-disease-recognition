@@ -37,6 +37,8 @@ class ResNetModule(LightningModule):
         # loss function
         self.criterion = CrossEntropyLoss()
 
+        self.preds_transforms = lambda x: torch.argmax(x, 1)
+
         # metric objects for calculating and averaging accuracy across batches
         self.train_metric = Accuracy(task='binary')
         self.val_metric = Accuracy(task='binary')
@@ -72,7 +74,7 @@ class ResNetModule(LightningModule):
         self.train_loss(loss)
         self.train_metric(preds, targets)
         self.log("train/loss", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("train/metric", self.train_metric.aggregate(), on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/metric", self.train_metric.compute(), on_step=False, on_epoch=True, prog_bar=True)
 
         # we can return here dict with any tensors
         # and then read it in some callback or in `training_epoch_end()` below
@@ -97,12 +99,12 @@ class ResNetModule(LightningModule):
         self.val_loss(loss)
         self.val_metric(preds, targets)
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val/metric", self.val_metric.aggregate(), on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/metric", self.val_metric, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def on_validation_epoch_end(self):
-        acc = self.val_metric.aggregate()  # get current val acc
+        acc = self.val_metric.compute() # get current val acc
         self.val_metric_best(acc)  # update best so far val acc
         # log `val_acc_best` as a value through `.compute()` method, instead of as a metric object
         # otherwise metric would be reset by lightning after each epoch

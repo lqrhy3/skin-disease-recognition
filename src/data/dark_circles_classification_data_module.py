@@ -2,7 +2,9 @@ import glob
 import os.path
 from typing import Optional, Tuple
 
+from torchvision.io import read_image
 import matplotlib.pyplot as plt
+import cv2
 import numpy as np
 import torch
 from torchvision.datasets import ImageFolder
@@ -22,6 +24,8 @@ from monai.transforms import (
     OneOf,
     RandZoom
 )
+
+from monai.transforms.utility.array import ToNumpy, ToTensor
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import Dataset, random_split
 
@@ -31,7 +35,8 @@ from src.utils.data import IMAGENET_MEAN, IMAGENET_STD
 def get_fit_transforms(image_size: Tuple[int, int] or int) -> Compose:
 
     transform = Compose([
-        Transpose((2, 1, 0)),
+        # ToTensor(),
+        # Transpose((2, 1, 0)),
         ScaleIntensityRange(0, 255, 0., 1.),
 
         RandFlip(prob=0.5, spatial_axis=1),
@@ -105,8 +110,9 @@ class DarkCirclesClassificationDataModule(LightningDataModule):
 
             image_files = glob.glob(os.path.join(self.hparams.predict_data_dir, 'data', '*'))
 
-            self.data_predict = ImageDataset(
-                image_files=image_files,
+            self.data_predict = ImageFolder(
+                root=self.hparams.data_dir,
+                loader=read_image,
                 transform=self.predict_transforms
             )
 
@@ -118,6 +124,7 @@ class DarkCirclesClassificationDataModule(LightningDataModule):
 
             dataset = ImageFolder(
                 root=self.hparams.data_dir,
+                loader=read_image,
                 transform=self.transforms
             )
 
@@ -157,29 +164,50 @@ class DarkCirclesClassificationDataModule(LightningDataModule):
             shuffle=False,
         )
 
+
 if __name__ == '__main__':
-    dm = DarkCirclesDataModule(
-        '/home/lqrhy3/PycharmProjects/skin-deseases-detection-project/data/processed/dark_circles',
-        image_size=(512, 512),
-        train_split=0.7,
-        batch_size=2
+    transforms = get_fit_transforms((512, 512))
+
+    dataset = ImageFolder(
+        root='data/processed/dark_circles_classification_train',
+        loader=read_image,
+        transform=transforms
     )
-    dm.setup()
-    # for i in range(10):
-    for i in [0] * 5:
-        image, label = dm.data_train[i]
-        image = image.numpy()
-        label = label.numpy()
-        print(image.shape)
+
+    for i in range(len(dataset) - 1, 0, -1):
+        # print(i)
+        img, label = dataset[i]
+        image = img.numpy()
+        print(label)
         image = image * np.array(IMAGENET_STD)[:, None, None] + np.array(IMAGENET_MEAN)[:, None, None]
         image = np.clip(image, 0, 1).transpose((1, 2, 0))
-        label = label.transpose((1, 2, 0))
 
-        print(np.unique(label))
+        # plt.imshow(image, vmin=0, vmax=1)
+        # plt.title(label)
+        # plt.show()
 
-        plt.subplot(1, 2, 1)
-        plt.imshow(image, vmin=0, vmax=1)
-        plt.subplot(1, 2, 2)
-        plt.imshow(label)
-        plt.title(i)
-        plt.show()
+    # dm = DarkCirclesDataModule(
+    #     '/home/lqrhy3/PycharmProjects/skin-deseases-detection-project/data/processed/dark_circles',
+    #     image_size=(512, 512),
+    #     train_split=0.7,
+    #     batch_size=2
+    # )
+    # dm.setup()
+    # # for i in range(10):
+    # for i in [0] * 5:
+    #     image, label = dm.data_train[i]
+    #     image = image.numpy()
+    #     label = label.numpy()
+    #     print(image.shape)
+    #     image = image * np.array(IMAGENET_STD)[:, None, None] + np.array(IMAGENET_MEAN)[:, None, None]
+    #     image = np.clip(image, 0, 1).transpose((1, 2, 0))
+    #     label = label.transpose((1, 2, 0))
+    #
+    #     print(np.unique(label))
+    #
+    #     plt.subplot(1, 2, 1)
+    #     plt.imshow(image, vmin=0, vmax=1)
+    #     plt.subplot(1, 2, 2)
+    #     plt.imshow(label)
+    #     plt.title(i)
+    #     plt.show()
