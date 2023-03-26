@@ -106,7 +106,14 @@ class NoMLClassifier:
 
     def calculate_intensity_by_mask(self, image: np.ndarray, mask: np.ndarray) -> float:
         roi = image * mask[:, :, None]
-        return roi[roi.nonzero()].mean()
+
+        roi_nonzero = roi[roi.nonzero()]
+        low_quantile = np.quantile(roi_nonzero, 0.25)
+        high_quantile = np.quantile(roi_nonzero, 0.75)
+
+        roi_dropped_quantile = roi_nonzero[(roi_nonzero >= low_quantile) & (roi_nonzero <= high_quantile)]
+
+        return roi_dropped_quantile.mean()
 
     def calculate_region_masks(self, image: np.ndarray, face_landmarks, eye_height: float):
         left_eye_circle_mask, right_eye_circle_mask, left_eye_circle, right_eye_circle = \
