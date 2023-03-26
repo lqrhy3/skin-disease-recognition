@@ -28,7 +28,6 @@ class SegmentationWriter(BasePredictionWriter):
         dataloader_idx,
     ) -> None:
         # inferting transforms for segmentation mask
-        # zdes' tolko kostyli i pizda
         assert prediction.shape[0] == 1
         pseudo_inverted_transform = CenterSpatialCrop((prediction.meta['height'][0], prediction.meta['width'][0]))
         prediction = pseudo_inverted_transform(prediction[0])
