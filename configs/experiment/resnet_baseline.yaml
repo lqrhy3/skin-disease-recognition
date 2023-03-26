@@ -7,7 +7,7 @@ defaults:
   - override /data: dark_circles_classification.yaml
   - override /model: resnet.yaml
   - override /callbacks: classification.yaml
-  - override /trainer: cpu.yaml
+  - override /trainer: gpu.yaml
   - override /paths: classification_dark_circles.yaml
 
 # all parameters below will be merged with parameters from default configurations set above
@@ -21,6 +21,6 @@ trainer:
   gradient_clip_val: 0.5
 
 data:
-  batch_size: 8
-  num_workers: 1
-  image_size: [512, 512]
+  batch_size: 64
+  num_workers: 8
+  image_size: [256, 256]
