@@ -21,7 +21,7 @@ ______________________________________________________________________
 
 # Acne detection
 
-<img src="demo/acne_sample.jpg" alt="acne sample" title="acne sample">
+<img src="demo/acne_sample.jpg" alt="acne sample" height="50%" width="50%" title="acne sample">
 
 </div>
 
