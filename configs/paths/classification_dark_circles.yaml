@@ -1,0 +1,4 @@
+root_dir: ${oc.env:PROJECT_ROOT}
+output_dir: ${hydra:runtime.output_dir}
+dark_circles_classification_data_dir: ${oc.env:DATA_DIR}/dark_circles_classification_train
+dark_circles_classification_test_data_dir: ${oc.env:DATA_DIR}/dark_circles_classification_test

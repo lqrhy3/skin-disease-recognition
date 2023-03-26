@@ -37,7 +37,11 @@ def main(raw_data_dir: str, dst_dir: str, json_path: str):
 
 def move_files(filenames: List, src_dir: Path, dst_dir: Path):
     for filename in filenames:
-        shutil.copy2(src_dir / filename, dst_dir / filename)
+        try:
+            shutil.copy2(src_dir / filename, dst_dir / filename)
+        except FileNotFoundError:
+            filename = filename.replace('JPG', 'PNG')
+            shutil.copy2(src_dir / filename, dst_dir / filename)
 
 
 def read_json(filename: Path) -> Any:
