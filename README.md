@@ -97,7 +97,7 @@ ______________________________________________________________________
 # Dark circles under the eyes recognition
 
 
-<img src="demo/dark_circles_sample.png" alt="dark circle sample" height="75%" width="75%" title="dark circle sample">
+<img src="demo/dark_circles_sample.png" alt="dark circle sample" height="75%" width="75%" title="dark circle sample" />
 </div>
 
 
@@ -140,38 +140,12 @@ python3 src/eval_noml_classification.py --data_dir <data_dir> --path_to_landmark
 
 ## Results
 
-<p align="center">
-  <figure>
-  <img src="demo/dc1.jpg" alt="$y=0$" width="200" height="200" />
-<!--   <figcaption>$y=0, \hat{y}=0$</figcaption> -->
-    <figcaption> 0 </figcaption>
-  </figure>
-  <figure>
-  <img src="demo/dc2.jpg" alt="$y=0$" width="200" height="200" />
-<!--   <figcaption>$y=0, \hat{y}=0$</figcaption> -->
-    <figcaption>0</figcaption>
-  </figure>
-  <figure>
-  <img src="demo/dc3.jpg" alt="$y=0$" width="200" height="200" />
-<!--   <figcaption>$y=0, \hat{y}=0$</figcaption> -->
-    <figcaption>0</figcaption>
-  </figure>
-</p>
-
-<p align="center">
-  <figure>
-  <img src="demo/dc4.jpg" alt="$y=1$" width="200" height="200" />
-  <figcaption>$y=1, \hat{y}=1$</figcaption>
-  </figure>
-  <figure>
-  <img src="demo/dc5.jpg" alt="$y=1$" width="200" height="200" />
-  <figcaption>$y=1, \hat{y}=1$</figcaption>
-  </figure>
-  <figure>
-  <img src="demo/dc6.jpg" alt="$y=1$" width="200" height="200" />
-  <figcaption>$y=1, \hat{y}=1$</figcaption>
-  </figure>
-</p>
+|         <!-- -->         |         <!-- -->         |         <!-- -->         |
+|:------------------------:|:------------------------:|:------------------------:|
+| ![Image 1](demo/dc1.jpg) | ![Image 2](demo/dc2.jpg) | ![Image 3](demo/dc3.jpg) |
+|   $y = 0; \hat{y} = 0$   |   $y = 0; \hat{y} = 0$   |   $y = 0; \hat{y} = 0$   |
+| ![Image 4](demo/dc4.jpg) | ![Image 5](demo/dc5.jpg) | ![Image 6](demo/dc6.jpg) |
+|   $y = 1; \hat{y} = 1$   |   $y = 0; \hat{y} = 1$   |   $y = 1; \hat{y} = 1$   |
 
 ---------------------------------------------------------------
 
