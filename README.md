@@ -139,6 +139,7 @@ python3 src/eval_noml_classification.py --data_dir <data_dir> --path_to_landmark
 
 
 ## Results
+<div align="center">
 
 |         <!-- -->          |         <!-- -->          |         <!-- -->          |
 |:-------------------------:|:-------------------------:|:-------------------------:|
@@ -146,6 +147,9 @@ python3 src/eval_noml_classification.py --data_dir <data_dir> --path_to_landmark
 |   $y = 0; \hat{y} = 0$    |   $y = 0; \hat{y} = 0$    |   $y = 0; \hat{y} = 0$    |
 | ![Image 4](demo/dc_4.jpg) | ![Image 5](demo/dc_5.jpg) | ![Image 6](demo/dc_6.jpg) |
 |   $y = 1; \hat{y} = 1$    |   $y = 0; \hat{y} = 1$    |   $y = 1; \hat{y} = 1$    |
+
+</div>
+
 
 ---------------------------------------------------------------
 
