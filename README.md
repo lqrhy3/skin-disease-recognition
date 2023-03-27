@@ -1,5 +1,3 @@
-______________________________________________________________________
-
 <div align="center">
 
 # Skin disease recognition
@@ -80,6 +78,17 @@ Instructions for training and evaluating YOLOv7 can be found in original [reposi
 
 ## Results
 
+<p align="center">
+  <img src="demo/acne1.jpg" width="200" height="200" />
+  <img src="demo/acne2.jpg" width="200" height="200" />
+  <img src="demo/acne3.jpg" width="200" height="200" />
+</p>
+
+<p align="center">
+  <img src="demo/acne4.jpg" width="200" height="200" />
+  <img src="demo/acne5.jpg" width="200" height="200" />
+  <img src="demo/acne6.jpg" width="200" height="200" />
+</p>
 
 ______________________________________________________________________
 
@@ -130,6 +139,39 @@ python3 src/eval_noml_classification.py --data_dir <data_dir> --path_to_landmark
 
 
 ## Results
+
+<p align="center">
+  <figure>
+  <img src="demo/dc1.jpg" alt="$y=0$" width="200" height="200" />
+<!--   <figcaption>$y=0, \hat{y}=0$</figcaption> -->
+    <figcaption> 0 </figcaption>
+  </figure>
+  <figure>
+  <img src="demo/dc2.jpg" alt="$y=0$" width="200" height="200" />
+<!--   <figcaption>$y=0, \hat{y}=0$</figcaption> -->
+    <figcaption>0</figcaption>
+  </figure>
+  <figure>
+  <img src="demo/dc3.jpg" alt="$y=0$" width="200" height="200" />
+<!--   <figcaption>$y=0, \hat{y}=0$</figcaption> -->
+    <figcaption>0</figcaption>
+  </figure>
+</p>
+
+<p align="center">
+  <figure>
+  <img src="demo/dc4.jpg" alt="$y=1$" width="200" height="200" />
+  <figcaption>$y=1, \hat{y}=1$</figcaption>
+  </figure>
+  <figure>
+  <img src="demo/dc5.jpg" alt="$y=1$" width="200" height="200" />
+  <figcaption>$y=1, \hat{y}=1$</figcaption>
+  </figure>
+  <figure>
+  <img src="demo/dc6.jpg" alt="$y=1$" width="200" height="200" />
+  <figcaption>$y=1, \hat{y}=1$</figcaption>
+  </figure>
+</p>
 
 ---------------------------------------------------------------
 
