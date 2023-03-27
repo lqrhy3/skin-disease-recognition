@@ -67,6 +67,7 @@ class NoMLClassifier:
         if face_landmarks is None:
             return None, None
 
+        image = self.match_histogram(image)
         eye_height = self.calculate_mean_eye_height(face_landmarks)
         rule_mask, rure_mask, rarule_mask, rarure_mask = self.calculate_region_masks(image, face_landmarks, eye_height)
         rule_intensity = self.calculate_intensity_by_mask(image, rule_mask)
@@ -89,6 +90,38 @@ class NoMLClassifier:
         #       f'========================')
 
         return mean_measure, mask
+
+    @staticmethod
+    def _match_histogram(source, tmpl_counts):
+        """
+          Return modified source array so that the cumulative density function of
+          its values matches the cumulative density function of the template.
+        """
+
+        src_lookup = source.reshape(-1)
+        src_counts = np.bincount(src_lookup)
+
+        # omit values where the count was 0
+        tmpl_values = np.nonzero(tmpl_counts)[0]
+        tmpl_counts = tmpl_counts[tmpl_values]
+
+        # calculate normalized quantiles for each array
+        src_quantiles = np.cumsum(src_counts) / source.size
+        tmpl_quantiles = np.cumsum(tmpl_counts) / tmpl_counts.sum()
+
+        interp_a_values = np.interp(src_quantiles, tmpl_quantiles, tmpl_values)
+        return interp_a_values[src_lookup].reshape(source.shape)
+
+    def match_histogram(self, image):
+        channels = []
+        for channel in (0, 1, 2):
+            channels.append(np.load(f'data/processed/mean_histogram_channel_{channel}.npy'))
+
+        matched = np.empty(image.shape, dtype=image.dtype)
+        for channel in range(image.shape[-1]):
+            matched_channel = self._match_histogram(image[..., channel], channels[channel])
+            matched[..., channel] = matched_channel
+        return matched
 
     def calculate_mean_eye_height(self, landmarks) -> float:
         landmark_list = landmarks.parts()
