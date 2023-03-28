@@ -146,7 +146,7 @@ python3 src/eval_noml_classification.py --data_dir <data_dir> --path_to_landmark
 | ![Image 1](demo/dc_1.jpg) | ![Image 2](demo/dc_2.jpg) | ![Image 3](demo/dc_3.jpg) |
 |   $y = 0; \hat{y} = 0$    |   $y = 0; \hat{y} = 0$    |   $y = 0; \hat{y} = 0$    |
 | ![Image 4](demo/dc_4.jpg) | ![Image 5](demo/dc_5.jpg) | ![Image 6](demo/dc_6.jpg) |
-|   $y = 1; \hat{y} = 1$    |   $y = 0; \hat{y} = 1$    |   $y = 1; \hat{y} = 1$    |
+|   $y = 1; \hat{y} = 1$    |   $y = 1; \hat{y} = 1$    |   $y = 1; \hat{y} = 1$    |
 
 </div>
 
