@@ -24,7 +24,7 @@ ______________________________________________________________________
 </div>
 
 ## Description
-First part of project project is focused on detecting acne in facial images using the YOLOv7 object detection model.
+First part of project is focused on detecting acne in facial images using the YOLOv7 object detection model.
 We used [this](https://github.com/WongKinYiu/yolov7) YOLOv7 implementation.
 
 ## Installation and environment
